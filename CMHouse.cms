@@ -1,0 +1,191 @@
+﻿// 11.05.2019
+#name "CMHouse"
+
+//=============================================
+
+$clickCountS = 200 * 5.4 //450
+$clickCountE = 200 * 5.5 //500
+$waitBasket = 3
+$sellTrigger = 1 //-1 sell / 1 no sell
+$boostMethod = 1 //-1 double / 1 one click
+
+IF($boostMethod == -1)
+   //boost double click button
+   ARRPUSH($boostButton, 1117) //left X
+   ARRPUSH($boostButton, 272) //left y
+   ARRPUSH($boostButton, 1185) //right x
+   ARRPUSH($boostButton, 286) //right y
+ELSE
+   //boost one click button
+   ARRPUSH($boostButton, 770)//740) //left X
+   ARRPUSH($boostButton, 530)//520) //left y
+   ARRPUSH($boostButton, 770)//785) //right x
+   ARRPUSH($boostButton, 530)//535) //right y
+END_IF
+
+ARRPUSH($basketButton, 222)
+ARRPUSH($basketButton, 462)
+ARRPUSH($basketButton, 247)
+ARRPUSH($basketButton, 492)
+
+ARRPUSH($enchantButton, 834)
+ARRPUSH($enchantButton, 720)
+ARRPUSH($enchantButton, 978)
+ARRPUSH($enchantButton, 737)
+
+ARRPUSH($page2, 665)
+ARRPUSH($page2, 728)
+ARRPUSH($page2, 679)
+ARRPUSH($page2, 741)
+
+$page3lx = 690
+
+ARRPUSH($exitButton, 1131)
+ARRPUSH($exitButton, 139)
+ARRPUSH($exitButton, 1148)
+ARRPUSH($exitButton, 157)
+
+$waitbtwS = 500
+$waitbtwE = 500
+
+$pageSpanx = $page3lx - $page2[0]
+
+//=============================================
+SUB(waitbtw)
+
+   $waitbtw = RND($waitbtwS, $waitbtwE)
+   WAITMS($waitbtw) 
+
+END_SUB  
+
+SUB(sell)
+   
+   $sellButtonlx = $enchantButton[0] + 295
+   $sellButtonrx = $enchantButton[2] + 166
+   $x = RND($sellButtonlx, $sellButtonlx)
+   $y = RND($enchantButton[1], $enchantButton[3])
+   
+   LCLICK($x, $y)
+   
+   waitbtw()
+   
+END_SUB
+
+SUB(enchant)
+   
+   $x = RND($enchantButton[0], $enchantButton[2])
+   $y = RND($enchantButton[1], $enchantButton[3])
+   
+   LCLICK($x, $y)
+   
+   waitbtw()
+   
+	 IF($sellTrigger < 0)
+     sell()
+   END_IF
+
+END_SUB
+
+//=============================================
+
+LOGCLEAR
+
+print("Start!")
+
+print("Checking values..")
+
+IF($waitBasket < 0)
+    print("waitBasket Error")
+    HALT
+END_IF
+
+IF($sellTrigger == -1)
+   $clickCountS = $clickCountS * 0.85
+   $clickCountE = $clickCountE * 0.85
+END_IF
+
+print("Waiting 5 seconds...")
+WAIT(5)
+print("Ready")
+print("========")
+
+$play = 0
+$clanScore = 0
+WHILE($play == 0)
+   
+   //start the timer
+   $startTime = $_time_str
+
+	 //speed up - button
+   $clickCount = RND($clickCountS,$clickCountE)
+   $x = RND($boostButton[0], $boostButton[2])
+   $y = RND($boostButton[1], $boostButton[3])
+   WAITMS(200)
+   MOVE($x, $y)
+   WAITMS(200)
+   FOR($count = 0,$count < $clickCount)
+      LUP($x, $y)
+      LDOWN($x, $y)
+      WAITMS(5)
+   END_CYC
+   
+   KEYPRESS(#ENTER)
+
+	 //basket - button
+   $x = RND($basketButton[0], $basketButton[2])
+   $y = RND($basketButton[1], $basketButton[3])
+   WAITMS(200)
+   MOVE($x, $y)
+   WAITMS(200)
+   WAIT($waitBasket-2)
+   LCLICK($x,$y)
+   WAIT($waitBasket-1)
+   
+   enchant()
+   
+   $x = RND($page2[0], $page2[2])
+   $y = RND($page2[1], $page2[3])
+   LCLICK($x,$y)
+   waitbtw()
+   enchant()
+   
+   $page3rx = $page2[2] + $pageSpanx
+   $x = RND($page3lx, $page3rx)
+   $y = RND($page2[1], $page2[3])
+   LCLICK($x,$y)
+   waitbtw()
+   enchant()
+   
+   $page4lx = $page3lx + $pageSpanx
+   $page4rx = $page3rx + $pageSpanx
+   $px = RND($page4lx, $page4rx)
+   $py = RND($page2[1], $page2[3])
+   
+   FOR($c=0,$c < 16)
+   
+      LCLICK($px,$py)
+      waitbtw()
+      enchant()
+      
+   END_CYC
+   
+   $page20lx = $page4lx + $pageSpanx
+   $page20rx = $page4rx + $pageSpanx
+   $x = RND($page20lx, $page20rx)
+   $y = RND($page2[1], $page2[3])
+   LCLICK($x,$y)
+   waitbtw()
+   enchant()
+   
+   $x = RND($exitButton[0], $exitButton[2])
+   $y = RND($exitButton[1], $exitButton[3])
+   LCLICK($x,$y)
+   waitbtw()
+   
+   $endTime = $_time_str
+   $clanScore = $clanScore + 2000
+   print($clanScore, " pts.")
+   
+END_CYC 
+print("End.")
+HALT
